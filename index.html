@@ -111,20 +111,21 @@ L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
 const linhasLayer = L.layerGroup().addTo(map);
 const idx = {}; GRUPOS.forEach(g=>idx[g.nome]=g);
 const eixos   = [...new Set(GRUPOS.map(g=>g.eixo))].sort();
+const contagemEixo = {}; GRUPOS.forEach(g=>contagemEixo[g.eixo]=(contagemEixo[g.eixo]||0)+1);
 const regioes = [...new Set(GRUPOS.map(g=>g.regiao))].sort();
 const eixosOff = new Set();   // eixos desligados pela legenda
 let selecionado = null;
 
 // preencher selects
 const selE=document.getElementById('fEixo'), selR=document.getElementById('fRegiao');
-eixos.forEach(e=>selE.insertAdjacentHTML('beforeend',`<option>${e}</option>`));
+eixos.forEach(e=>selE.insertAdjacentHTML('beforeend',`<option value="${e}">${e} (${contagemEixo[e]})</option>`));
 regioes.forEach(r=>selR.insertAdjacentHTML('beforeend',`<option>${r}</option>`));
 
 // legenda
 const leg=document.getElementById('legend');
 eixos.forEach(e=>{
   const row=document.createElement('div'); row.className='row'; row.dataset.eixo=e;
-  row.innerHTML=`<span class="dot" style="background:${CORES[e]||'#999'}"></span><span>${e}</span>`;
+  row.innerHTML=`<span class="dot" style="background:${CORES[e]||'#999'}"></span><span>${e} (${contagemEixo[e]})</span>`;
   row.onclick=()=>{ eixosOff.has(e)?eixosOff.delete(e):eixosOff.add(e);
                     row.classList.toggle('off'); render(); };
   leg.appendChild(row);
