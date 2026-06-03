@@ -15,7 +15,7 @@
   html,body{margin:0;height:100%;font-family:'Segoe UI',system-ui,-apple-system,Arial,sans-serif;color:var(--ink);background:var(--bg)}
   #app{display:flex;height:100vh;overflow:hidden}
   /* Painel lateral */
-  #side{width:340px;min-width:340px;background:var(--panel);border-right:1px solid var(--line);
+  #side{width:350px;min-width:350px;background:var(--panel);border-right:1px solid var(--line);
         display:flex;flex-direction:column;box-shadow:2px 0 18px rgba(180,80,40,.06);z-index:500}
   .head{padding:20px 20px 14px;background:linear-gradient(135deg,#E63946 0%,#F4801A 55%,#D81E5B 100%);color:#fff}
   .head h1{margin:0;font-size:19px;letter-spacing:.2px}
@@ -55,6 +55,10 @@
   .layers-box .row{display:flex;align-items:center;gap:9px;font-size:12.5px;margin:6px 0;cursor:pointer;user-select:none}
   .layers-box input{width:16px;height:16px;accent-color:var(--accent)}
   .layers-note{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
+  /* Rótulo das regionais no mapa */
+  .reg-label{background:rgba(255,248,243,.75);border:none;box-shadow:none;color:#8A4B1D;
+             font-size:11px;font-weight:700;padding:1px 5px;border-radius:6px;text-transform:uppercase;letter-spacing:.3px}
+  .reg-label::before{display:none}
   /* Rodape de creditos */
   #rodape{position:fixed;left:0;bottom:0;z-index:600;padding:4px 10px;
           font-size:10.5px;color:#9A8675;background:rgba(255,248,243,.85)}
@@ -81,8 +85,8 @@
         <select id="fEixo"><option value="">Todos os eixos</option></select>
       </div>
       <div class="field">
-        <p class="grp">Região</p>
-        <select id="fRegiao"><option value="">Todas as regiões</option></select>
+        <p class="grp">Regional</p>
+        <select id="fRegiao"><option value="">Todas as regionais</option></select>
       </div>
       <div class="field">
         <p class="grp">Conexões</p>
@@ -299,7 +303,7 @@ function toggleRegionais(on){
           if(feats.length===0){ tentar(i+1); return; }
           camadaRegionais = L.geoJSON({type:'FeatureCollection',features:feats}, {
             style: estiloRegional,
-            onEachFeature: (f,l)=>{ if(f.properties && f.properties.name) l.bindTooltip(f.properties.name,{sticky:true}); }
+            onEachFeature: (f,l)=>{ if(f.properties && f.properties.name) l.bindTooltip(f.properties.name,{permanent:true, direction:'center', className:'reg-label'}); }
           });
           camadaRegionais.addTo(map);
           regionaisCarregadas = true;
