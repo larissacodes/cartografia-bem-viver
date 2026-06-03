@@ -48,8 +48,7 @@ O dashboard é uma página estática (HTML, CSS e JavaScript) que usa a bibliote
 - Ana Laura Vieira Dutra Nicácio
 - Maria Luiza Fernandes Pereira
 - Stella Campos Braga
-
-Gabinete da Vereadora Luiza Dulci
+- Gabinete da Vereadora Luiza Dulci
 
 ## Como citar
 
