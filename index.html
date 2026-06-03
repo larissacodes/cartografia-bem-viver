@@ -55,10 +55,9 @@
   .layers-box .row{display:flex;align-items:center;gap:9px;font-size:12.5px;margin:6px 0;cursor:pointer;user-select:none}
   .layers-box input{width:16px;height:16px;accent-color:var(--accent)}
   .layers-note{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
-  /* Rótulo das regionais no mapa */
-  .reg-label{background:rgba(255,248,243,.75);border:none;box-shadow:none;color:#8A4B1D;
-             font-size:11px;font-weight:700;padding:1px 5px;border-radius:6px;text-transform:uppercase;letter-spacing:.3px}
-  .reg-label::before{display:none}
+  /* Rótulo das regionais no mapa (aparece ao passar o mouse) */
+  .reg-label{background:#fff;border:1px solid var(--line);box-shadow:0 1px 4px rgba(120,60,30,.15);
+             color:#8A4B1D;font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px}
   /* Rodape de creditos */
   #rodape{position:fixed;left:0;bottom:0;z-index:600;padding:4px 10px;
           font-size:10.5px;color:#9A8675;background:rgba(255,248,243,.85)}
@@ -270,6 +269,8 @@ function toggleMunicipio(on){
       camadaMunicipio = L.geoJSON(BH_MUNICIPIO, {style: estiloArea});
     }
     camadaMunicipio.addTo(map);
+    if(camadaMunicipio.bringToBack) camadaMunicipio.bringToBack();
+    GRUPOS.forEach(g=>{ if(markers[g.nome] && markers[g.nome].bringToFront && map.hasLayer(markers[g.nome])) markers[g.nome].bringToFront(); });
   } else if(camadaMunicipio){
     map.removeLayer(camadaMunicipio);
   }
@@ -303,9 +304,15 @@ function toggleRegionais(on){
           if(feats.length===0){ tentar(i+1); return; }
           camadaRegionais = L.geoJSON({type:'FeatureCollection',features:feats}, {
             style: estiloRegional,
-            onEachFeature: (f,l)=>{ if(f.properties && f.properties.name) l.bindTooltip(f.properties.name,{permanent:true, direction:'center', className:'reg-label'}); }
+            onEachFeature: (f,l)=>{
+              if(f.properties && f.properties.name){
+                l.bindTooltip(f.properties.name, {sticky:true, direction:'top', className:'reg-label'});
+              }
+            }
           });
           camadaRegionais.addTo(map);
+          if(camadaRegionais.bringToBack) camadaRegionais.bringToBack();
+          GRUPOS.forEach(g=>{ if(markers[g.nome] && markers[g.nome].bringToFront && map.hasLayer(markers[g.nome])) markers[g.nome].bringToFront(); });
           regionaisCarregadas = true;
           note.textContent = feats.length + ' regionais carregadas (fonte: OpenStreetMap).';
         })
