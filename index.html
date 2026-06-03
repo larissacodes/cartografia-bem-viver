@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cartografia do Bem Viver · BH</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🗺️</text></svg>">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <style>
   :root{
@@ -230,7 +231,7 @@ function render(){
 ['cExist','cPoss','cRegiao'].forEach(id=>document.getElementById(id).onchange=render);
 document.getElementById('reset').onclick=()=>{
   selE.value='';selR.value='';selecionado=null;eixosOff.clear();
-  document.getElementById('cExist').checked=true;
+  document.getElementById('cExist').checked=false;
   document.getElementById('cPoss').checked=false;
   document.getElementById('cRegiao').checked=false;
   document.querySelectorAll('.legend .row').forEach(r=>r.classList.remove('off'));
