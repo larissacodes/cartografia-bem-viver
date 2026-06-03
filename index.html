@@ -57,9 +57,9 @@
   .layers-note{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
   /* Rótulo fixo das regionais no centro de cada área */
   .reg-label{background:rgba(255,255,255,.82);border:1px solid var(--line);
-             color:#8A4B1D;font-size:11px;font-weight:600;padding:1px 6px;border-radius:6px;
+             color:#8A4B1D;font-size:11px;font-weight:600;border-radius:6px;
              white-space:nowrap;box-shadow:0 1px 3px rgba(120,60,30,.12);
-             transform:translate(-50%,-50%);display:inline-block;pointer-events:none}
+             display:flex;align-items:center;justify-content:center;pointer-events:none}
   /* Rodape de creditos */
   #rodape{position:fixed;left:0;bottom:0;z-index:600;padding:4px 10px;
           font-size:10.5px;color:#9A8675;background:rgba(255,248,243,.85)}
@@ -311,9 +311,18 @@ function toggleRegionais(on){
             if(!(f.properties && f.properties.name)) return;
             const c = centroPoligono(f.geometry);
             if(!c) return;
+            // largura aproximada do texto (px) para ancorar pelo centro exato
+            const txt = f.properties.name;
+            const larg = txt.length * 6.5 + 14;  // ~6.5px por char + padding
+            const alt = 18;
             const etiqueta = L.marker([c[1], c[0]], {
               interactive:false,
-              icon: L.divIcon({className:'reg-label', html:f.properties.name, iconSize:null})
+              icon: L.divIcon({
+                className:'reg-label',
+                html:txt,
+                iconSize:[larg, alt],
+                iconAnchor:[larg/2, alt/2]
+              })
             });
             etiqueta.addTo(camadaRegionais);
           });
