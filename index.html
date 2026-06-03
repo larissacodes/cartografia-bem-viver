@@ -55,9 +55,11 @@
   .layers-box .row{display:flex;align-items:center;gap:9px;font-size:12.5px;margin:6px 0;cursor:pointer;user-select:none}
   .layers-box input{width:16px;height:16px;accent-color:var(--accent)}
   .layers-note{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
-  /* Rótulo das regionais no mapa (aparece ao passar o mouse) */
-  .reg-label{background:#fff;border:1px solid var(--line);box-shadow:0 1px 4px rgba(120,60,30,.15);
-             color:#8A4B1D;font-size:12px;font-weight:600;padding:2px 7px;border-radius:6px}
+  /* Rótulo fixo das regionais no centro de cada área */
+  .reg-label{background:rgba(255,255,255,.82);border:1px solid var(--line);
+             color:#8A4B1D;font-size:11px;font-weight:600;padding:1px 6px;border-radius:6px;
+             white-space:nowrap;box-shadow:0 1px 3px rgba(120,60,30,.12);
+             transform:translate(-50%,-50%);display:inline-block;pointer-events:none}
   /* Rodape de creditos */
   #rodape{position:fixed;left:0;bottom:0;z-index:600;padding:4px 10px;
           font-size:10.5px;color:#9A8675;background:rgba(255,248,243,.85)}
@@ -302,16 +304,21 @@ function toggleRegionais(on){
         .then(data=>{
           const feats = osmParaGeoJSON(data);
           if(feats.length===0){ tentar(i+1); return; }
-          camadaRegionais = L.geoJSON({type:'FeatureCollection',features:feats}, {
-            style: estiloRegional,
-            onEachFeature: (f,l)=>{
-              if(f.properties && f.properties.name){
-                l.bindTooltip(f.properties.name, {sticky:true, direction:'top', className:'reg-label'});
-              }
-            }
+          camadaRegionais = L.layerGroup();
+          const formas = L.geoJSON({type:'FeatureCollection',features:feats}, {style: estiloRegional});
+          formas.addTo(camadaRegionais);
+          feats.forEach(f=>{
+            if(!(f.properties && f.properties.name)) return;
+            const c = centroPoligono(f.geometry);
+            if(!c) return;
+            const etiqueta = L.marker([c[1], c[0]], {
+              interactive:false,
+              icon: L.divIcon({className:'reg-label', html:f.properties.name, iconSize:null})
+            });
+            etiqueta.addTo(camadaRegionais);
           });
           camadaRegionais.addTo(map);
-          if(camadaRegionais.bringToBack) camadaRegionais.bringToBack();
+          if(formas.bringToBack) formas.bringToBack();
           GRUPOS.forEach(g=>{ if(markers[g.nome] && markers[g.nome].bringToFront && map.hasLayer(markers[g.nome])) markers[g.nome].bringToFront(); });
           regionaisCarregadas = true;
           note.textContent = feats.length + ' regionais carregadas (fonte: OpenStreetMap).';
@@ -322,6 +329,21 @@ function toggleRegionais(on){
   } else if(camadaRegionais){
     map.removeLayer(camadaRegionais);
   }
+}
+
+// Calcula o centro (centróide simples) de um polígono GeoJSON para posicionar o rótulo
+function centroPoligono(geom){
+  let ring=null;
+  if(geom.type==='Polygon') ring=geom.coordinates[0];
+  else if(geom.type==='MultiPolygon'){
+    // usa o maior anel do multipolígono
+    let maior=0;
+    geom.coordinates.forEach(poly=>{ if(poly[0] && poly[0].length>maior){ maior=poly[0].length; ring=poly[0]; }});
+  }
+  if(!ring || !ring.length) return null;
+  let x=0,y=0;
+  ring.forEach(p=>{ x+=p[0]; y+=p[1]; });
+  return [x/ring.length, y/ring.length];
 }
 
 // Converte relations do Overpass (com geometria) em polígonos GeoJSON simples
