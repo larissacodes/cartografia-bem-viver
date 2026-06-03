@@ -38,7 +38,7 @@ O dashboard é uma página estática (HTML, CSS e JavaScript) que usa a bibliote
 
 ## Como citar
 
-AGUIAR, Larissa Diniz. **Cartografia do Bem Viver**: mapa de coletivos e movimentos de Belo Horizonte. Belo Horizonte, 2026. Disponível em: https://larissacodes.github.io/cartografia-bem-viver/. Acesso em: 3 jun. 2026.
+AGUIAR, Larissa Diniz *et al.* **Cartografia do Bem Viver**: mapa de coletivos e movimentos de Belo Horizonte. Belo Horizonte, 2026. Disponível em: https://larissacodes.github.io/cartografia-bem-viver/. Acesso em: 3 jun. 2026.
 
 > A data de acesso deve ser ajustada para o dia em que você consultou o material.
 
@@ -48,6 +48,6 @@ Este projeto está sob a licença [Creative Commons Atribuição 4.0 Internacion
 
 ## Créditos
 
-Produzido por **Larissa Diniz Aguiar**.
+Produzido por **Larissa Diniz Aguiar**, em parceria com os al.
 
 Uma iniciativa do **gabinete da vereadora Luiza Dulci** em parceria com o **projeto Confluir (PUC Minas)**.
