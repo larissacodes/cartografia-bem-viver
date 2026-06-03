@@ -36,6 +36,12 @@ O mapeamento foi construído a partir de pesquisa sobre os grupos e seus territ�
 
 O dashboard é uma página estática (HTML, CSS e JavaScript) que usa a biblioteca [Leaflet](https://leafletjs.com/) para o mapa e tiles do [CartoDB](https://carto.com/). Está hospedado no GitHub Pages.
 
+## Como citar
+
+AGUIAR, Larissa Diniz. **Cartografia do Bem Viver**: mapa de coletivos e movimentos de Belo Horizonte. Belo Horizonte, 2026. Disponível em: https://larissacodes.github.io/cartografia-bem-viver/. Acesso em: 3 jun. 2026.
+
+> A data de acesso deve ser ajustada para o dia em que você consultou o material.
+
 ## Licença
 
 Este projeto está sob a licença [Creative Commons Atribuição 4.0 Internacional (CC BY 4.0)](LICENSE). Você pode compartilhar e adaptar o material, inclusive para fins comerciais, desde que atribua o devido crédito.
