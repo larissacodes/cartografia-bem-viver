@@ -58,7 +58,7 @@ AGUIAR, Larissa Diniz *et al.* **Cartografia do Bem Viver**: mapa de coletivos e
 
 ## Licença
 
-Este projeto está sob a licença [Creative Commons Atribuição 4.0 Internacional (CC BY 4.0)](LICENSE). Você pode compartilhar e adaptar o material, inclusive para fins comerciais, desde que atribua o devido crédito.
+Este projeto está sob a licença [Creative Commons Atribuição-NãoComercial 4.0 Internacional (CC BY-NC 4.0)](https://github.com/larissacodes/cartografia-bem-viver/blob/main/LICENSE). Você pode compartilhar e adaptar o material para fins não comerciais, desde que atribua o devido crédito.
 
 ## Créditos
 
