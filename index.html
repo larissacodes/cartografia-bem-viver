@@ -50,6 +50,11 @@
   .leaflet-popup-content-wrapper{border-radius:10px}
   .leaflet-popup-content{margin:11px 14px;font-size:13px}
   .pin-label{font-size:11px;font-weight:700}
+  /* Controle de camadas territoriais */
+  .layers-box{margin-top:4px}
+  .layers-box .row{display:flex;align-items:center;gap:9px;font-size:12.5px;margin:6px 0;cursor:pointer;user-select:none}
+  .layers-box input{width:16px;height:16px;accent-color:var(--accent)}
+  .layers-note{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4}
   /* Rodape de creditos */
   #rodape{position:fixed;left:0;bottom:0;z-index:600;padding:4px 10px;
           font-size:10.5px;color:#9A8675;background:rgba(255,248,243,.85)}
@@ -84,6 +89,12 @@
         <label class="toggle"><input type="checkbox" id="cExist"> Conexões já existentes</label>
         <label class="toggle"><input type="checkbox" id="cPoss"> Conexões possíveis</label>
         <label class="toggle"><input type="checkbox" id="cRegiao"> Destacar grupos da mesma região</label>
+      </div>
+      <div class="field layers-box">
+        <p class="grp">Camadas do território</p>
+        <label class="row"><input type="checkbox" id="cMunicipio"> Limite de Belo Horizonte</label>
+        <label class="row"><input type="checkbox" id="cRegionais"> Regionais de BH</label>
+        <p class="layers-note" id="regNote"></p>
       </div>
       <div class="field legend" id="legend">
         <p class="grp">Legenda (clique p/ ligar/desligar)</p>
@@ -239,6 +250,78 @@ document.getElementById('reset').onclick=()=>{
   document.getElementById('detail').className='';
   render();
 };
+
+// ---- Camadas territoriais (limite do município + regionais) ----
+const BH_MUNICIPIO = {"type":"FeatureCollection","features":[{"type":"Feature","properties":{"nome":"Belo Horizonte"},"geometry":{"type":"Polygon","coordinates":[[[-44.06197,-19.97431],[-44.06153,-19.97319],[-44.05644,-19.97448],[-44.05247,-19.97286],[-44.049,-19.97367],[-44.04525,-19.9732],[-44.04434,-19.97368],[-44.04389,-19.97559],[-44.03703,-19.98268],[-44.03614,-19.9834],[-44.03408,-19.98279],[-44.03034,-19.97603],[-44.02805,-19.97537],[-44.0235,-19.97183],[-44.01486,-19.96958],[-44.0124,-19.96768],[-44.01178,-19.96598],[-44.01245,-19.96332],[-44.01161,-19.96281],[-44.01117,-19.96104],[-44.01398,-19.95744],[-44.01356,-19.95563],[-44.00537,-19.95453],[-44.00669,-19.95323],[-44.00867,-19.95267],[-44.00831,-19.95054],[-44.01011,-19.94836],[-44.01222,-19.94617],[-44.01527,-19.94679],[-44.01598,-19.94614],[-44.02009,-19.9456],[-44.02367,-19.94291],[-44.02469,-19.9395],[-44.02672,-19.93695],[-44.02198,-19.92453],[-44.02301,-19.92158],[-44.02548,-19.91944],[-44.02638,-19.91765],[-44.02886,-19.91495],[-44.02805,-19.91443],[-44.02831,-19.91214],[-44.02767,-19.91111],[-44.02458,-19.90821],[-44.0268,-19.90575],[-44.02615,-19.90373],[-44.02676,-19.89967],[-44.02631,-19.89842],[-44.02214,-19.89759],[-44.02042,-19.89657],[-44.01992,-19.8936],[-44.01497,-19.88999],[-44.01293,-19.88059],[-44.01409,-19.8795],[-44.01525,-19.87562],[-44.01894,-19.87319],[-44.0183,-19.86952],[-44.02034,-19.867],[-44.01845,-19.86342],[-44.01837,-19.85961],[-44.01628,-19.85862],[-44.01439,-19.86059],[-44.01339,-19.86001],[-44.01117,-19.85661],[-44.01287,-19.85429],[-44.00873,-19.85368],[-44.00892,-19.85267],[-44.01558,-19.84735],[-44.01981,-19.8396],[-44.02047,-19.83681],[-44.01786,-19.83485],[-44.01683,-19.83118],[-44.01276,-19.82957],[-44.01358,-19.82582],[-44.00975,-19.82554],[-44.00865,-19.82515],[-44.00845,-19.82331],[-44.00534,-19.82091],[-44.00756,-19.81302],[-44.00553,-19.81039],[-44.00367,-19.80922],[-44.00191,-19.80185],[-43.99851,-19.7995],[-43.99831,-19.79851],[-43.99189,-19.79523],[-43.99037,-19.7903],[-43.99011,-19.78539],[-43.98925,-19.78479],[-43.98584,-19.78472],[-43.97578,-19.78119],[-43.96648,-19.79104],[-43.96525,-19.79121],[-43.96422,-19.79069],[-43.96414,-19.78965],[-43.96578,-19.78485],[-43.9619,-19.7808],[-43.95998,-19.78002],[-43.95911,-19.778],[-43.95334,-19.77667],[-43.95178,-19.77556],[-43.94832,-19.77677],[-43.94579,-19.77679],[-43.94598,-19.78085],[-43.94783,-19.78492],[-43.94734,-19.79228],[-43.94319,-19.79761],[-43.93745,-19.79819],[-43.93559,-19.79524],[-43.9335,-19.79515],[-43.92856,-19.79776],[-43.924,-19.79873],[-43.92034,-19.80271],[-43.91954,-19.80215],[-43.91917,-19.8],[-43.91573,-19.7976],[-43.91375,-19.79714],[-43.91053,-19.79933],[-43.9092,-19.80204],[-43.90408,-19.80191],[-43.90219,-19.80439],[-43.89877,-19.80194],[-43.89719,-19.80397],[-43.89836,-19.80854],[-43.89753,-19.80928],[-43.89417,-19.80952],[-43.8919,-19.81403],[-43.88934,-19.81541],[-43.88541,-19.81461],[-43.88417,-19.8162],[-43.8808,-19.81342],[-43.87667,-19.81337],[-43.87581,-19.81851],[-43.87358,-19.81939],[-43.86936,-19.81947],[-43.86836,-19.82499],[-43.86275,-19.82498],[-43.86192,-19.82566],[-43.86184,-19.82691],[-43.86558,-19.83088],[-43.86309,-19.83708],[-43.86752,-19.83949],[-43.86772,-19.84273],[-43.86633,-19.84719],[-43.86321,-19.85102],[-43.85789,-19.85477],[-43.8569,-19.85733],[-43.85789,-19.85665],[-43.86089,-19.85673],[-43.86253,-19.85544],[-43.86602,-19.85738],[-43.86678,-19.8592],[-43.87678,-19.86701],[-43.87881,-19.8663],[-43.88051,-19.86243],[-43.88213,-19.86135],[-43.88736,-19.86278],[-43.89031,-19.86277],[-43.89227,-19.86489],[-43.89619,-19.8636],[-43.89743,-19.86716],[-43.89755,-19.87196],[-43.89892,-19.87453],[-43.90052,-19.8756],[-43.90778,-19.87463],[-43.90872,-19.87477],[-43.90913,-19.87576],[-43.90783,-19.88238],[-43.90556,-19.88556],[-43.90464,-19.886],[-43.90156,-19.88472],[-43.8972,-19.8854],[-43.89469,-19.88705],[-43.89369,-19.88696],[-43.89123,-19.88486],[-43.89047,-19.88579],[-43.88992,-19.89188],[-43.88651,-19.89197],[-43.8843,-19.89958],[-43.88366,-19.90045],[-43.88153,-19.90062],[-43.88133,-19.90117],[-43.8817,-19.90541],[-43.88014,-19.90772],[-43.87686,-19.91003],[-43.87609,-19.91382],[-43.87375,-19.91676],[-43.87122,-19.91805],[-43.86901,-19.92428],[-43.87067,-19.92783],[-43.87532,-19.93201],[-43.87895,-19.93669],[-43.87983,-19.9373],[-43.88323,-19.93732],[-43.8862,-19.9407],[-43.88831,-19.94171],[-43.89009,-19.9443],[-43.89027,-19.94631],[-43.89154,-19.94676],[-43.89373,-19.94787],[-43.89691,-19.95114],[-43.90256,-19.95356],[-43.9096,-19.95968],[-43.91307,-19.96256],[-43.91607,-19.96359],[-43.93442,-19.97325],[-43.9394,-19.97445],[-43.94614,-19.98145],[-43.94823,-19.9863],[-43.95162,-19.98943],[-43.95469,-19.99083],[-43.95641,-19.99353],[-43.95676,-19.99545],[-43.96028,-19.99831],[-43.96205,-20.00177],[-43.96535,-20.00433],[-43.96833,-20.00585],[-43.97281,-20.00692],[-43.97497,-20.00844],[-43.97664,-20.01105],[-43.98333,-20.01687],[-43.98331,-20.01983],[-43.98803,-20.02538],[-43.98914,-20.02804],[-43.98995,-20.0288],[-43.99213,-20.02881],[-43.9937,-20.03435],[-43.99686,-20.03718],[-43.99723,-20.04271],[-43.99634,-20.04544],[-43.99841,-20.04635],[-43.9995,-20.05247],[-44.0018,-20.05692],[-44.01222,-20.0593],[-44.01402,-20.05862],[-44.01567,-20.05479],[-44.01711,-20.05339],[-44.01709,-20.05047],[-44.01097,-20.04447],[-44.00989,-20.04158],[-44.01294,-20.03647],[-44.02036,-20.03379],[-44.02114,-20.03196],[-44.0252,-20.02818],[-44.03206,-20.02162],[-44.03592,-20.01978],[-44.0355,-20.01677],[-44.03881,-20.014],[-44.04082,-20.00855],[-44.04602,-20.00193],[-44.04826,-19.9979],[-44.04995,-19.99658],[-44.0538,-19.99552],[-44.05526,-19.98957],[-44.05514,-19.98428],[-44.05613,-19.98104],[-44.06197,-19.97431]]]}}]};
+const estiloArea = {color:'#C77D4A', weight:2, opacity:0.85, fillColor:'#E8C9A8', fillOpacity:0.18};
+const estiloRegional = {color:'#B5651D', weight:1.5, opacity:0.8, fillColor:'#E8C9A8', fillOpacity:0.12, dashArray:'4,4'};
+
+let camadaMunicipio = null;
+let camadaRegionais = null;
+let regionaisCarregadas = false;
+
+function toggleMunicipio(on){
+  if(on){
+    if(!camadaMunicipio){
+      camadaMunicipio = L.geoJSON(BH_MUNICIPIO, {style: estiloArea});
+    }
+    camadaMunicipio.addTo(map);
+  } else if(camadaMunicipio){
+    map.removeLayer(camadaMunicipio);
+  }
+}
+
+function toggleRegionais(on){
+  const note = document.getElementById('regNote');
+  if(on){
+    if(regionaisCarregadas && camadaRegionais){
+      camadaRegionais.addTo(map);
+      return;
+    }
+    note.textContent = 'Carregando regionais do OpenStreetMap…';
+    const query = '[out:json][timeout:25];area["name"="Belo Horizonte"]["admin_level"="8"]->.bh;(relation["admin_level"="9"](area.bh);relation["boundary"="administrative"]["admin_level"="9"](area.bh););out geom;';
+    const url = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query);
+    fetch(url)
+      .then(r=>r.json())
+      .then(data=>{
+        const feats = osmParaGeoJSON(data);
+        if(feats.length===0){ note.textContent = 'Não foi possível carregar as regionais agora. Tente novamente mais tarde.'; document.getElementById('cRegionais').checked=false; return; }
+        camadaRegionais = L.geoJSON({type:'FeatureCollection',features:feats}, {
+          style: estiloRegional,
+          onEachFeature: (f,l)=>{ if(f.properties && f.properties.name) l.bindTooltip(f.properties.name,{sticky:true}); }
+        });
+        camadaRegionais.addTo(map);
+        regionaisCarregadas = true;
+        note.textContent = feats.length + ' regionais carregadas (fonte: OpenStreetMap).';
+      })
+      .catch(()=>{ note.textContent = 'Não foi possível carregar as regionais (sem conexão com o OpenStreetMap).'; document.getElementById('cRegionais').checked=false; });
+  } else if(camadaRegionais){
+    map.removeLayer(camadaRegionais);
+  }
+}
+
+// Converte relations do Overpass (com geometria) em polígonos GeoJSON simples
+function osmParaGeoJSON(data){
+  const feats=[];
+  (data.elements||[]).forEach(el=>{
+    if(el.type!=='relation' || !el.members) return;
+    const outers=[];
+    el.members.forEach(m=>{
+      if(m.type==='way' && m.geometry && (m.role==='outer'||m.role==='')){
+        outers.push(m.geometry.map(p=>[p.lon,p.lat]));
+      }
+    });
+    if(outers.length){
+      feats.push({type:'Feature',
+        properties:{name:(el.tags&&el.tags.name)||'Regional'},
+        geometry:{type:'Polygon',coordinates:outers}});
+    }
+  });
+  return feats;
+}
+
+document.getElementById('cMunicipio').onchange = e=>toggleMunicipio(e.target.checked);
+document.getElementById('cRegionais').onchange = e=>toggleRegionais(e.target.checked);
 
 render();
 </script>
