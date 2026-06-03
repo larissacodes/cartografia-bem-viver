@@ -22,12 +22,14 @@ Pelo painel lateral é possível:
 
 ## Eixos temáticos
 
-- **Meio ambiente e arborização**
-- **Agroecologia e economia solidária**
-- **Resíduos e reciclagem**
-- **Cultura e cuidado**
-- **Direito à cidade e habitação**
+## Eixos temáticos
 
+- Meio ambiente
+- Agroecologia e economia solidária
+- Gestão de resíduos
+- Cultura e cuidado
+- Direito à cidade
+  
 ## Sobre os dados e a construção do projeto
 
 O mapeamento foi construído a partir de pesquisa sobre os grupos e seus territórios. As coordenadas de grupos sem sede fixa (coletivos itinerantes, movimentos estaduais) são aproximadas pelo centro da região de atuação. As conexões entre grupos refletem relações já identificadas e potenciais de articulação.
