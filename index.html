@@ -26,6 +26,20 @@
   select{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:#fff;
          font-size:13.5px;color:var(--ink);outline:none}
   select:focus{border-color:var(--accent)}
+  /* Busca de grupo */
+  .search-wrap{position:relative}
+  #fBusca{width:100%;padding:9px 10px;border:1.5px solid var(--line);border-radius:9px;background:#fff;
+          font-size:13.5px;color:var(--ink);outline:none}
+  #fBusca:focus{border-color:var(--accent)}
+  #buscaResultados{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;
+          border:1.5px solid var(--line);border-radius:9px;max-height:230px;overflow-y:auto;
+          z-index:700;box-shadow:0 8px 22px rgba(180,80,40,.14);display:none}
+  #buscaResultados.open{display:block}
+  #buscaResultados .item{display:flex;align-items:center;gap:9px;padding:8px 11px;font-size:13px;cursor:pointer}
+  #buscaResultados .item:hover,#buscaResultados .item.ativo{background:#FBEEE6}
+  #buscaResultados .item .dot{width:11px;height:11px;border-radius:50%;flex:none}
+  #buscaResultados .item small{color:var(--muted);font-size:11px;margin-left:auto;text-align:right}
+  #buscaResultados .vazio{padding:10px 11px;font-size:12.5px;color:var(--muted)}
   .toggle{display:flex;align-items:center;gap:9px;font-size:13px;margin:7px 0;cursor:pointer;user-select:none}
   .toggle input{width:16px;height:16px;accent-color:var(--accent)}
   .legend{margin-top:4px}
@@ -77,12 +91,18 @@
     </div>
     <div class="body">
       <div class="field">
-        <p class="grp">Eixo temático</p>
-        <select id="fEixo"><option value="">Todos os eixos</option></select>
+        <p class="grp">Buscar grupo</p>
+        <div class="search-wrap">
+          <input type="text" id="fBusca" placeholder="Digite o nome do grupo…" autocomplete="off">
+          <div id="buscaResultados"></div>
+        </div>
       </div>
       <div class="field">
         <p class="grp">Regional</p>
         <select id="fRegiao"><option value="">Todas as regionais</option></select>
+      </div>
+      <div class="field legend" id="legend">
+        <p class="grp">Eixo temático (clique p/ ligar/desligar)</p>
       </div>
       <div class="field">
         <p class="grp">Conexões</p>
@@ -95,9 +115,6 @@
         <label class="row"><input type="checkbox" id="cMunicipio"> Limite de Belo Horizonte</label>
         <label class="row"><input type="checkbox" id="cRegionais"> Regionais de BH</label>
         <p class="layers-note" id="regNote"></p>
-      </div>
-      <div class="field legend" id="legend">
-        <p class="grp">Legenda (clique p/ ligar/desligar)</p>
       </div>
       <div class="count" id="count"></div>
       <button class="btn" id="reset">Limpar filtros</button>
@@ -127,12 +144,11 @@ const regioes = [...new Set(GRUPOS.map(g=>g.regiao))].sort();
 const eixosOff = new Set();   // eixos desligados pela legenda
 let selecionado = null;
 
-// preencher selects
-const selE=document.getElementById('fEixo'), selR=document.getElementById('fRegiao');
-eixos.forEach(e=>selE.insertAdjacentHTML('beforeend',`<option value="${e}">${e} (${contagemEixo[e]})</option>`));
+// preencher select de regional
+const selR=document.getElementById('fRegiao');
 regioes.forEach(r=>selR.insertAdjacentHTML('beforeend',`<option>${r}</option>`));
 
-// legenda
+// legenda (eixos)
 const leg=document.getElementById('legend');
 eixos.forEach(e=>{
   const row=document.createElement('div'); row.className='row'; row.dataset.eixo=e;
@@ -140,6 +156,78 @@ eixos.forEach(e=>{
   row.onclick=()=>{ eixosOff.has(e)?eixosOff.delete(e):eixosOff.add(e);
                     row.classList.toggle('off'); render(); };
   leg.appendChild(row);
+});
+
+// ---- Busca de grupo por nome ----
+const inputBusca = document.getElementById('fBusca');
+const boxResultados = document.getElementById('buscaResultados');
+let idxAtivo = -1;
+
+function normalizar(s){
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+}
+
+function gruposFiltradosBusca(termo){
+  const t = normalizar(termo.trim());
+  if(!t) return [];
+  return GRUPOS.filter(g=>normalizar(g.nome).includes(t))
+              .sort((a,b)=>a.nome.localeCompare(b.nome));
+}
+
+function renderResultadosBusca(){
+  const lista = gruposFiltradosBusca(inputBusca.value);
+  idxAtivo = -1;
+  if(!inputBusca.value.trim()){ boxResultados.classList.remove('open'); boxResultados.innerHTML=''; return; }
+  if(lista.length===0){
+    boxResultados.innerHTML='<div class="vazio">Nenhum grupo encontrado.</div>';
+    boxResultados.classList.add('open'); return;
+  }
+  boxResultados.innerHTML = lista.map(g=>`
+    <div class="item" data-nome="${g.nome.replace(/"/g,'&quot;')}">
+      <span class="dot" style="background:${CORES[g.eixo]||'#999'}"></span>
+      <span>${g.nome}</span>
+      <small>${g.regiao}</small>
+    </div>`).join('');
+  boxResultados.querySelectorAll('.item').forEach(it=>{
+    it.onclick=()=>selecionarGrupoBusca(it.dataset.nome);
+  });
+  boxResultados.classList.add('open');
+}
+
+function selecionarGrupoBusca(nome){
+  boxResultados.classList.remove('open');
+  inputBusca.value = nome;
+  // garante que o grupo apareça mesmo se o eixo estiver desligado
+  const g = idx[nome];
+  if(g && eixosOff.has(g.eixo)){
+    eixosOff.delete(g.eixo);
+    document.querySelectorAll('.legend .row').forEach(r=>{
+      if(r.dataset.eixo===g.eixo) r.classList.remove('off');
+    });
+  }
+  abrirDetalhe(nome);
+  if(g){ map.setView([g.lat,g.lng], 15, {animate:true}); }
+}
+
+inputBusca.addEventListener('input', renderResultadosBusca);
+inputBusca.addEventListener('focus', ()=>{ if(inputBusca.value.trim()) renderResultadosBusca(); });
+inputBusca.addEventListener('keydown', e=>{
+  const itens = [...boxResultados.querySelectorAll('.item')];
+  if(e.key==='ArrowDown'){ e.preventDefault(); idxAtivo=Math.min(idxAtivo+1,itens.length-1); }
+  else if(e.key==='ArrowUp'){ e.preventDefault(); idxAtivo=Math.max(idxAtivo-1,0); }
+  else if(e.key==='Enter'){
+    e.preventDefault();
+    if(idxAtivo>=0 && itens[idxAtivo]) selecionarGrupoBusca(itens[idxAtivo].dataset.nome);
+    else { const l=gruposFiltradosBusca(inputBusca.value); if(l.length) selecionarGrupoBusca(l[0].nome); }
+    return;
+  }
+  else if(e.key==='Escape'){ boxResultados.classList.remove('open'); return; }
+  else return;
+  itens.forEach((it,i)=>it.classList.toggle('ativo', i===idxAtivo));
+  if(itens[idxAtivo]) itens[idxAtivo].scrollIntoView({block:'nearest'});
+});
+document.addEventListener('click', e=>{
+  if(!e.target.closest('.search-wrap')) boxResultados.classList.remove('open');
 });
 
 // marcadores
@@ -156,7 +244,6 @@ GRUPOS.forEach(g=>{
 
 function visivel(g){
   if(eixosOff.has(g.eixo)) return false;
-  if(selE.value && g.eixo!==selE.value) return false;
   if(selR.value && g.regiao!==selR.value) return false;
   return true;
 }
@@ -239,10 +326,11 @@ function render(){
   }
 }
 
-[selE,selR].forEach(s=>s.onchange=render);
+selR.onchange=render;
 ['cExist','cPoss','cRegiao'].forEach(id=>document.getElementById(id).onchange=render);
 document.getElementById('reset').onclick=()=>{
-  selE.value='';selR.value='';selecionado=null;eixosOff.clear();
+  selR.value='';selecionado=null;eixosOff.clear();
+  inputBusca.value='';boxResultados.classList.remove('open');boxResultados.innerHTML='';
   document.getElementById('cExist').checked=false;
   document.getElementById('cPoss').checked=false;
   document.getElementById('cRegiao').checked=false;
