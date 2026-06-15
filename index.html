@@ -46,6 +46,13 @@
   .legend .row{display:flex;align-items:center;gap:9px;font-size:12.5px;margin:6px 0;cursor:pointer}
   .legend .dot{width:13px;height:13px;border-radius:50%;flex:none}
   .legend .row.off{opacity:.32}
+  /* Lista de regionais (multi-seleção) */
+  .reg-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:2px}
+  .reg-list .chip{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;
+        padding:5px 11px;border:1.5px solid var(--line);border-radius:20px;cursor:pointer;
+        user-select:none;background:#fff;color:var(--ink);transition:.15s}
+  .reg-list .chip:hover{border-color:var(--accent)}
+  .reg-list .chip.on{background:#FBEEE6;border-color:var(--accent);color:#A8431F;font-weight:600}
   .count{font-size:12px;color:var(--muted);margin-top:4px}
   .btn{display:block;width:100%;margin-top:6px;padding:9px;border:none;border-radius:9px;cursor:pointer;
        background:#FBEEE6;color:#A8431F;font-weight:600;font-size:12.5px}
@@ -98,8 +105,8 @@
         </div>
       </div>
       <div class="field">
-        <p class="grp">Regional</p>
-        <select id="fRegiao"><option value="">Todas as regionais</option></select>
+        <p class="grp">Regional (clique p/ filtrar)</p>
+        <div class="reg-list" id="fRegiao"></div>
       </div>
       <div class="field legend" id="legend">
         <p class="grp">Eixo temático (clique p/ ligar/desligar)</p>
@@ -142,11 +149,22 @@ const eixos   = [...new Set(GRUPOS.map(g=>g.eixo))].sort();
 const contagemEixo = {}; GRUPOS.forEach(g=>contagemEixo[g.eixo]=(contagemEixo[g.eixo]||0)+1);
 const regioes = [...new Set(GRUPOS.map(g=>g.regiao))].sort();
 const eixosOff = new Set();   // eixos desligados pela legenda
+const regioesOn = new Set();  // regionais selecionadas (vazio = todas)
 let selecionado = null;
 
-// preencher select de regional
+// montar chips de regional (multi-seleção)
 const selR=document.getElementById('fRegiao');
-regioes.forEach(r=>selR.insertAdjacentHTML('beforeend',`<option>${r}</option>`));
+const contagemReg = {}; GRUPOS.forEach(g=>contagemReg[g.regiao]=(contagemReg[g.regiao]||0)+1);
+regioes.forEach(r=>{
+  const chip=document.createElement('span'); chip.className='chip'; chip.dataset.regiao=r;
+  chip.textContent=`${r} (${contagemReg[r]})`;
+  chip.onclick=()=>{
+    if(regioesOn.has(r)){ regioesOn.delete(r); chip.classList.remove('on'); }
+    else { regioesOn.add(r); chip.classList.add('on'); }
+    render();
+  };
+  selR.appendChild(chip);
+});
 
 // legenda (eixos)
 const leg=document.getElementById('legend');
@@ -205,6 +223,13 @@ function selecionarGrupoBusca(nome){
       if(r.dataset.eixo===g.eixo) r.classList.remove('off');
     });
   }
+  // garante que o grupo apareça mesmo se a regional dele estiver fora do filtro
+  if(g && regioesOn.size && !regioesOn.has(g.regiao)){
+    regioesOn.add(g.regiao);
+    document.querySelectorAll('.reg-list .chip').forEach(c=>{
+      if(c.dataset.regiao===g.regiao) c.classList.add('on');
+    });
+  }
   abrirDetalhe(nome);
   if(g){ map.setView([g.lat,g.lng], 15, {animate:true}); }
 }
@@ -244,7 +269,7 @@ GRUPOS.forEach(g=>{
 
 function visivel(g){
   if(eixosOff.has(g.eixo)) return false;
-  if(selR.value && g.regiao!==selR.value) return false;
+  if(regioesOn.size && !regioesOn.has(g.regiao)) return false;
   return true;
 }
 
@@ -326,10 +351,10 @@ function render(){
   }
 }
 
-selR.onchange=render;
 ['cExist','cPoss','cRegiao'].forEach(id=>document.getElementById(id).onchange=render);
 document.getElementById('reset').onclick=()=>{
-  selR.value='';selecionado=null;eixosOff.clear();
+  selecionado=null;eixosOff.clear();regioesOn.clear();
+  document.querySelectorAll('.reg-list .chip').forEach(c=>c.classList.remove('on'));
   inputBusca.value='';boxResultados.classList.remove('open');boxResultados.innerHTML='';
   document.getElementById('cExist').checked=false;
   document.getElementById('cPoss').checked=false;
