@@ -25,8 +25,9 @@
         background-repeat:repeat;background-position:center;background-size:430px auto;
         opacity:0.5}  /* <- transparencia do mapa: 1 = cheio, 0 = invisivel */
   .head h1{position:relative;margin:0;font-size:19px;letter-spacing:.2px;color:var(--verde-escuro);
+           /* halo branco curto atras das letras: 1o valor = alcance colado, 2o = brilho suave */
            text-shadow:0 0 3px rgba(255,255,255,.95), 0 0 7px rgba(255,255,255,.65),
-            0 1px 0 rgba(255,255,255,.9);
+                       0 1px 0 rgba(255,255,255,.9)}
   .head p{position:relative;margin:9px 0 0;font-size:12.7px;line-height:1.55;color:#274B38;font-weight:500;
           padding:10px 12px;border-radius:10px;background:rgba(255,255,255,.62);
           -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
@@ -136,7 +137,7 @@
       </div>
       <div class="field layers-box">
         <p class="grp">Camadas do território</p>
-        <label class="row"><input type="checkbox" id="cMunicipio"> Limites de Belo Horizonte</label>
+        <label class="row"><input type="checkbox" id="cMunicipio"> Limite de Belo Horizonte</label>
         <label class="row"><input type="checkbox" id="cRegionais"> Regionais de BH</label>
         <p class="layers-note" id="regNote"></p>
       </div>
